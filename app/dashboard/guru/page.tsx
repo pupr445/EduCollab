@@ -2,6 +2,10 @@ export const runtime = 'edge';
 
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import CreateClassForm from "./CreateClassForm";
+import ClassCard from "./ClassCard";
+import LogoutButton from "@/components/LogoutButton";
+
 export default async function DashboardGuru() {
   const supabase = await createClient();
   const {
@@ -14,29 +18,29 @@ export default async function DashboardGuru() {
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">Dasbor Guru</h1>
             <p className="text-sm text-slate-500">Kelola kelas, skenario pembelajaran, dan bank materi.</p>
           </div>
-          <Link
-            href="/materi"
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-          >
-            Bank Materi & RPP
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/materi"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              Bank Materi & RPP
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
+
+        <div className="mb-8">
+          <CreateClassForm />
+        </div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(classes ?? []).map((c) => (
-            <Link
-              key={c.id}
-              href={`/kelas/${c.id}/aktivitas`}
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-            >
-              <h2 className="font-medium text-slate-900">{c.name}</h2>
-              <p className="text-sm text-slate-500">{c.topic}</p>
-              <p className="mt-3 text-xs text-slate-400">Kode gabung: {c.join_code}</p>
-            </Link>
+            <ClassCard key={c.id} kelas={c} />
           ))}
           {(!classes || classes.length === 0) && (
             <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { translateError } from "@/lib/errorMessages";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -23,7 +25,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      setError(translateError(error));
       setLoading(false);
       return;
     }
@@ -77,6 +79,13 @@ export default function LoginPage() {
         >
           {loading ? "Memproses..." : "Masuk"}
         </button>
+
+        <p className="mt-4 text-center text-sm text-slate-500">
+          Belum punya akun?{" "}
+          <Link href="/register" className="font-medium text-indigo-600 hover:underline">
+            Daftar di sini
+          </Link>
+        </p>
       </form>
     </main>
   );

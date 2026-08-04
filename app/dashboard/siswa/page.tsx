@@ -2,6 +2,9 @@ export const runtime = 'edge';
 
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import JoinClassForm from "./JoinClassForm";
+import LogoutButton from "@/components/LogoutButton";
+
 export default async function DashboardSiswa() {
   const supabase = await createClient();
   const {
@@ -14,8 +17,16 @@ export default async function DashboardSiswa() {
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Dasbor Siswa</h1>
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold text-slate-900">Dasbor Siswa</h1>
+          <LogoutButton />
+        </div>
         <p className="mb-8 text-sm text-slate-500">Kelas dan kelompok yang kamu ikuti.</p>
+
+        <div className="mb-8">
+          <JoinClassForm />
+        </div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(memberships ?? []).map((m: any) => (
             <Link
