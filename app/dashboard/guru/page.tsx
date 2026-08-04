@@ -1,17 +1,16 @@
+export const runtime = 'edge';
+
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-
 export default async function DashboardGuru() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   const { data: classes } = await supabase
     .from("classes")
     .select("id, name, topic, join_code")
     .eq("owner_id", user?.id ?? "");
-
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
@@ -27,7 +26,6 @@ export default async function DashboardGuru() {
             Bank Materi & RPP
           </Link>
         </div>
-
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(classes ?? []).map((c) => (
             <Link
@@ -40,7 +38,6 @@ export default async function DashboardGuru() {
               <p className="mt-3 text-xs text-slate-400">Kode gabung: {c.join_code}</p>
             </Link>
           ))}
-
           {(!classes || classes.length === 0) && (
             <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
               Belum ada kelas. Buat kelas baru untuk mulai merancang skenario pembelajaran
