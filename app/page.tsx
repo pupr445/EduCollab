@@ -25,7 +25,7 @@ export default function Home() {
       <section className="mx-auto max-w-4xl px-6 py-20 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-1 text-sm font-medium text-indigo-700">
           <GraduationCap className="h-4 w-4" />
-          EduCollab
+          Tandem
         </div>
         <h1 className="mb-4 text-4xl font-semibold tracking-tight text-slate-900">
           Platform Perangkat Ajar Interaktif
@@ -38,7 +38,7 @@ export default function Home() {
           href="/login"
           className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700"
         >
-          Masuk ke EduCollab
+          Masuk ke Tandem
         </Link>
       </section>
 

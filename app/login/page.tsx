@@ -45,7 +45,7 @@ export default function LoginPage() {
         onSubmit={handleLogin}
         className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
       >
-        <h1 className="mb-1 text-xl font-semibold text-slate-900">Masuk ke EduCollab</h1>
+        <h1 className="mb-1 text-xl font-semibold text-slate-900">Masuk ke Tandem</h1>
         <p className="mb-6 text-sm text-slate-500">
           Untuk guru dan siswa yang sudah terdaftar di kelas.
         </p>

@@ -58,7 +58,7 @@ export default function RegisterPage() {
         onSubmit={handleRegister}
         className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
       >
-        <h1 className="mb-1 text-xl font-semibold text-slate-900">Daftar ke EduCollab</h1>
+        <h1 className="mb-1 text-xl font-semibold text-slate-900">Daftar ke Tandem</h1>
         <p className="mb-6 text-sm text-slate-500">Buat akun baru sebagai guru atau siswa.</p>
 
         <label className="mb-1 block text-sm font-medium text-slate-700">Nama Lengkap</label>

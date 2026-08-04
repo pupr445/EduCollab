@@ -1,5 +1,5 @@
 -- ============================================================
--- EduCollab — Skema Database Awal (Supabase / PostgreSQL)
+-- Tandem — Skema Database Awal (Supabase / PostgreSQL)
 -- Sesuai Rencana Proyek bagian 3 (Backend & Database) & 4 (Konfigurasi Basis Data)
 -- ============================================================
 

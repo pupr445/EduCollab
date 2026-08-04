@@ -1,10 +1,12 @@
-# EduCollab — Platform Perangkat Ajar Interaktif
+# Tandem — Platform Kolaborasi Kelompok
 
-Aplikasi web untuk memfasilitasi model pembelajaran kolaboratif secara digital: manajemen
-skenario kelas, sinkronisasi real-time antar kelompok, dan bank materi/RPP terpusat.
+Aplikasi web untuk memfasilitasi kerja kolaboratif secara digital: manajemen kelompok/kelas,
+sinkronisasi real-time antar anggota, dan bank materi/dokumen terpusat.
 
-Konteks implementasi awal: tingkat SMP (mis. SMP Negeri 8 Kupang), untuk materi dengan
-diskusi dinamis dan interaksi sosial tinggi (contoh: Perubahan Sosial Budaya).
+Implementasi awal berfokus pada sektor pendidikan (tingkat SMP, mis. SMP Negeri 8 Kupang),
+untuk materi dengan diskusi dinamis dan interaksi sosial tinggi (contoh: Perubahan Sosial
+Budaya). Nama dan arsitektur produk (Tandem) dirancang agar dapat diperluas ke sektor lain
+di luar pendidikan — lihat bagian "Rencana Perluasan Sektor" di bawah.
 
 ## Tech Stack
 
