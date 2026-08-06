@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tandem",
-  description: "Platform Perangkat Ajar Interaktif untuk pembelajaran kolaboratif",
+  title: "Tandem — Kerja tim, dalam bahasa Anda sendiri",
+  description:
+    "Tandem adalah platform kolaborasi yang menyesuaikan istilahnya sendiri untuk sekolah, perusahaan, komunitas, dan instansi mana pun.",
 };
 
 export default function RootLayout({
