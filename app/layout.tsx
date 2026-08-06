@@ -5,6 +5,12 @@ export const metadata: Metadata = {
   title: "Tandem — Kerja tim, dalam bahasa Anda sendiri",
   description:
     "Tandem adalah platform kolaborasi yang menyesuaikan istilahnya sendiri untuk sekolah, perusahaan, komunitas, dan instansi mana pun.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+  },
 };
 
 export default function RootLayout({
