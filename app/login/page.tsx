@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { translateError } from "@/lib/errorMessages";
+import { setActiveOrgCookie } from "@/lib/activeOrgCookie";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -30,13 +31,22 @@ export default function LoginPage() {
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
+    // Peran (admin/member) & tujuan dasbor ditentukan dari keanggotaan organisasi
+    // pengguna — bukan dari kolom profiles.role lama ("guru"/"siswa") yang sudah
+    // tidak dipakai lagi (Konsep Fitur Dropdown Registrasi v4).
+    const { data: membership } = await supabase
+      .from("org_memberships")
+      .select("org_id, org_role")
+      .eq("user_id", data.user.id)
+      .order("joined_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
-    router.push(profile?.role === "guru" ? "/dashboard/guru" : "/dashboard/siswa");
+    if (membership) {
+      setActiveOrgCookie(membership.org_id);
+    }
+
+    router.push(membership?.org_role === "admin" ? "/dashboard/guru" : "/dashboard/siswa");
   }
 
   return (

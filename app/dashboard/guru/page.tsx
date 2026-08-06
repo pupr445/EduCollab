@@ -6,12 +6,18 @@ import CreateClassForm from "./CreateClassForm";
 import ClassCard from "./ClassCard";
 import LogoutButton from "@/components/LogoutButton";
 import OrgSwitcher from "@/components/OrgSwitcher";
+import { getActiveMembership } from "@/lib/activeOrgServer";
+import { getOrgLabels } from "@/lib/sectorLabels";
 
 export default async function DashboardGuru() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const membership = user ? await getActiveMembership(supabase, user.id) : null;
+  const labels = await getOrgLabels(supabase, membership?.org_id);
+
   const { data: classes } = await supabase
     .from("classes")
     .select("id, name, topic, join_code")
@@ -21,8 +27,10 @@ export default async function DashboardGuru() {
       <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Dasbor Guru</h1>
-            <p className="text-sm text-slate-500">Kelola kelas, skenario pembelajaran, dan bank materi.</p>
+            <h1 className="text-2xl font-semibold text-slate-900">Dasbor {labels.leader}</h1>
+            <p className="text-sm text-slate-500">
+              Kelola {labels.group.toLowerCase()}, skenario kegiatan, dan bank {labels.content.toLowerCase()}.
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <OrgSwitcher />
@@ -36,14 +44,14 @@ export default async function DashboardGuru() {
               href="/materi"
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
             >
-              Bank Materi & RPP
+              Bank {labels.content}
             </Link>
             <LogoutButton />
           </div>
         </div>
 
         <div className="mb-8">
-          <CreateClassForm />
+          <CreateClassForm groupLabel={labels.group} />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -52,8 +60,8 @@ export default async function DashboardGuru() {
           ))}
           {(!classes || classes.length === 0) && (
             <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-              Belum ada kelas. Buat kelas baru untuk mulai merancang skenario pembelajaran
-              (mis. Gallery Walk atau Numbered Heads Together).
+              Belum ada {labels.group.toLowerCase()}. Buat {labels.group.toLowerCase()} baru untuk mulai
+              merancang kegiatan (mis. Gallery Walk atau Numbered Heads Together).
             </div>
           )}
         </div>

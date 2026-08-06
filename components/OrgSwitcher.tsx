@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getActiveOrgCookie, setActiveOrgCookie } from "@/lib/activeOrgCookie";
 
 type MembershipRow = {
   org_id: string;
@@ -13,18 +14,6 @@ type MembershipRow = {
     sector_dictionaries: { sector_label: string } | null;
   };
 };
-
-const ACTIVE_ORG_COOKIE = "tandem_active_org";
-
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-function setCookie(name: string, value: string) {
-  // 1 tahun, cukup untuk sesi "organisasi aktif terakhir dipakai"
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${60 * 60 * 24 * 365}`;
-}
 
 export default function OrgSwitcher() {
   const supabase = createClient();
@@ -53,11 +42,11 @@ export default function OrgSwitcher() {
       const rows = (data ?? []) as unknown as MembershipRow[];
       setMemberships(rows);
 
-      const stored = getCookie(ACTIVE_ORG_COOKIE);
+      const stored = getActiveOrgCookie();
       const validStored = rows.find((r) => r.org_id === stored);
       const initial = validStored ? stored : rows[0]?.org_id ?? null;
       setActiveOrgId(initial);
-      if (initial) setCookie(ACTIVE_ORG_COOKIE, initial);
+      if (initial) setActiveOrgCookie(initial);
 
       setLoading(false);
     }
@@ -77,7 +66,7 @@ export default function OrgSwitcher() {
 
   function switchOrg(orgId: string) {
     setActiveOrgId(orgId);
-    setCookie(ACTIVE_ORG_COOKIE, orgId);
+    setActiveOrgCookie(orgId);
     setOpen(false);
     router.refresh(); // muat ulang label & data sesuai organisasi baru
   }

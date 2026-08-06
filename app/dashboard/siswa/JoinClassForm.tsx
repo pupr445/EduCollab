@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { translateError } from "@/lib/errorMessages";
 
-export default function JoinClassForm() {
+export default function JoinClassForm({ groupLabel = "Kelas" }: { groupLabel?: string }) {
   const supabase = createClient();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function JoinClassForm() {
       .maybeSingle();
 
     if (findError || !kelas) {
-      setError("Kode gabung tidak ditemukan. Periksa kembali kode dari gurumu.");
+      setError(`Kode gabung tidak ditemukan. Periksa kembali kode ${groupLabel.toLowerCase()}nya.`);
       setLoading(false);
       return;
     }
@@ -43,7 +43,7 @@ export default function JoinClassForm() {
     });
 
     if (insertError) {
-      setError(insertError.code === "23505" ? "Kamu sudah tergabung di kelas ini." : translateError(insertError));
+      setError(insertError.code === "23505" ? `Kamu sudah tergabung di ${groupLabel.toLowerCase()} ini.` : translateError(insertError));
       setLoading(false);
       return;
     }
@@ -60,14 +60,14 @@ export default function JoinClassForm() {
         onClick={() => setOpen(true)}
         className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
       >
-        + Gabung Kelas
+        + Gabung {groupLabel}
       </button>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 font-medium text-slate-900">Gabung Kelas</h2>
+      <h2 className="mb-4 font-medium text-slate-900">Gabung {groupLabel}</h2>
 
       <label className="mb-1 block text-sm font-medium text-slate-700">Kode Gabung</label>
       <input

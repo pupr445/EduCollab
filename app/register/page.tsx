@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { translateError } from "@/lib/errorMessages";
+import { setActiveOrgCookie } from "@/lib/activeOrgCookie";
 import OrgFields, { type OrgFieldsValue } from "./OrgFields";
 
 export default function RegisterPage() {
@@ -13,7 +14,6 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("siswa");
   const [org, setOrg] = useState<OrgFieldsValue>({
     mode: "buat",
     orgName: "",
@@ -64,7 +64,6 @@ export default function RegisterPage() {
     const { error: profileError } = await supabase.from("profiles").insert({
       id: data.user.id,
       full_name: fullName,
-      role,
     });
 
     if (profileError) {
@@ -108,6 +107,8 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
+
+      setActiveOrgCookie(newOrg.id);
     } else {
       const { data: found, error: findError } = await supabase.rpc(
         "find_organization_by_invite_code",
@@ -132,11 +133,18 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
+
+      setActiveOrgCookie(foundOrg.id);
     }
+
+    // Peran admin/member ditentukan otomatis dari cara bergabung ("Buat organisasi"
+    // vs "Gabung dengan kode") — bukan lagi dipilih manual sebagai "Guru"/"Siswa"
+    // (Konsep Fitur Dropdown Registrasi v4: peran mengikuti sektor, bukan sebaliknya).
+    const nextPath = org.mode === "buat" ? "/dashboard/guru" : "/dashboard/siswa";
 
     setSuccess(true);
     setLoading(false);
-    setTimeout(() => router.push("/login"), 1500);
+    setTimeout(() => router.push(nextPath), 1500);
   }
 
   return (
@@ -157,18 +165,6 @@ export default function RegisterPage() {
           className="mb-4 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           placeholder="Nama lengkap"
         />
-
-        <label className="mb-1 block text-sm font-medium text-slate-700">Peran</label>
-        <div className="mb-4 flex gap-4">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="radio" name="role" value="siswa" checked={role === "siswa"} onChange={() => setRole("siswa")} />
-            Siswa
-          </label>
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="radio" name="role" value="guru" checked={role === "guru"} onChange={() => setRole("guru")} />
-            Guru
-          </label>
-        </div>
 
         <label className="mb-2 block text-sm font-medium text-slate-700">Organisasi</label>
         <OrgFields value={org} onChange={setOrg} />
