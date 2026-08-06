@@ -7,7 +7,15 @@ import { translateError } from "@/lib/errorMessages";
 
 type KelasOption = { id: string; name: string };
 
-export default function UploadMaterialForm() {
+export default function UploadMaterialForm({
+  contentLabel = "Materi",
+  groupLabel = "Kelas",
+  leaderLabel = "Guru",
+}: {
+  contentLabel?: string;
+  groupLabel?: string;
+  leaderLabel?: string;
+}) {
   const supabase = createClient();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -76,20 +84,23 @@ export default function UploadMaterialForm() {
   if (!open) {
     return (
       <button onClick={() => setOpen(true)} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-        + Unggah Materi
+        + Unggah {contentLabel}
       </button>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 font-medium text-slate-900">Unggah Materi / RPP</h2>
+      <h2 className="mb-4 font-medium text-slate-900">Unggah {contentLabel}</h2>
 
       {classes.length === 0 ? (
-        <p className="mb-3 text-sm text-slate-500">Kamu belum memiliki kelas. Buat kelas terlebih dahulu di Dasbor Guru.</p>
+        <p className="mb-3 text-sm text-slate-500">
+          Kamu belum memiliki {groupLabel.toLowerCase()}. Buat {groupLabel.toLowerCase()} terlebih dahulu
+          di Dasbor {leaderLabel}.
+        </p>
       ) : (
         <>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Kelas</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">{groupLabel}</label>
           <select value={classId} onChange={(e) => setClassId(e.target.value)} className="mb-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             {classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>

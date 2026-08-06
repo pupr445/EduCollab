@@ -3,10 +3,18 @@ export const runtime = 'edge';
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import MemberRow from "./MemberRow";
+import { getActiveMembership } from "@/lib/activeOrgServer";
+import { getOrgLabels } from "@/lib/sectorLabels";
 
 export default async function AnggotaKelas({ params }: { params: Promise<{ id: string }> }) {
   const { id: classId } = await params;
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const membership = user ? await getActiveMembership(supabase, user.id) : null;
+  const labels = await getOrgLabels(supabase, membership?.org_id);
 
   const { data: kelas } = await supabase
     .from("classes")
@@ -31,9 +39,9 @@ export default async function AnggotaKelas({ params }: { params: Promise<{ id: s
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-3xl">
         <Link href="/dashboard/guru" className="mb-4 inline-block text-sm text-indigo-600 hover:underline">
-          &larr; Kembali ke Dasbor Guru
+          &larr; Kembali ke Dasbor {labels.leader}
         </Link>
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Anggota & Kelompok</h1>
+        <h1 className="mb-1 text-2xl font-semibold text-slate-900">{labels.member} & Kelompok</h1>
         <p className="mb-6 text-sm text-slate-500">
           {kelas?.name} — {kelas?.topic}
         </p>
@@ -50,7 +58,8 @@ export default async function AnggotaKelas({ params }: { params: Promise<{ id: s
           ))}
           {(!members || members.length === 0) && (
             <div className="p-8 text-center text-sm text-slate-500">
-              Belum ada siswa yang bergabung ke kelas ini. Bagikan kode gabung kelas kepada siswa.
+              Belum ada {labels.member.toLowerCase()} yang bergabung ke {labels.group.toLowerCase()} ini.
+              Bagikan kode gabung {labels.group.toLowerCase()} kepada {labels.member.toLowerCase()}.
             </div>
           )}
         </div>

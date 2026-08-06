@@ -5,9 +5,17 @@ import { FolderOpen } from "lucide-react";
 import UploadMaterialForm from "./UploadMaterialForm";
 import MaterialItem from "./MaterialItem";
 import LogoutButton from "@/components/LogoutButton";
+import { getActiveMembership } from "@/lib/activeOrgServer";
+import { getOrgLabels } from "@/lib/sectorLabels";
 
 export default async function BankMateri() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const membership = user ? await getActiveMembership(supabase, user.id) : null;
+  const labels = await getOrgLabels(supabase, membership?.org_id);
+
   const { data: materials } = await supabase
     .from("materials")
     .select("id, title, kind, created_at, storage_path")
@@ -19,9 +27,9 @@ export default async function BankMateri() {
           <div className="flex items-center gap-3">
             <FolderOpen className="h-6 w-6 text-indigo-600" />
             <div>
-              <h1 className="text-2xl font-semibold text-slate-900">Bank Materi & RPP</h1>
+              <h1 className="text-2xl font-semibold text-slate-900">Bank {labels.content}</h1>
               <p className="text-sm text-slate-500">
-                Dokumen RPP, materi presentasi, dan portofolio tugas — tersimpan terpusat di cloud.
+                Dokumen dan berkas kerja — tersimpan terpusat di cloud.
               </p>
             </div>
           </div>
@@ -29,7 +37,7 @@ export default async function BankMateri() {
         </div>
 
         <div className="mb-8">
-          <UploadMaterialForm />
+          <UploadMaterialForm contentLabel={labels.content} groupLabel={labels.group} leaderLabel={labels.leader} />
         </div>
 
         <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -38,7 +46,8 @@ export default async function BankMateri() {
           ))}
           {(!materials || materials.length === 0) && (
             <div className="p-8 text-center text-sm text-slate-500">
-              Belum ada materi diunggah. Guru dapat menambahkan RPP atau materi presentasi.
+              Belum ada {labels.content.toLowerCase()} diunggah. {labels.leader} dapat menambahkan
+              berkas di sini.
             </div>
           )}
         </div>

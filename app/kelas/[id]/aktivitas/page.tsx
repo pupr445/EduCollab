@@ -5,6 +5,7 @@ export const runtime = 'edge';
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { translateError } from "@/lib/errorMessages";
+import { useActiveOrgLabels } from "@/lib/useActiveOrgLabels";
 
 type Post = {
   id: string;
@@ -22,6 +23,7 @@ const METHOD_LABEL: Record<string, string> = {
 export default function AktivitasKelas({ params }: { params: Promise<{ id: string }> }) {
   const { id: classId } = use(params);
   const supabase = createClient();
+  const labels = useActiveOrgLabels();
   const [posts, setPosts] = useState<Post[]>([]);
   const [content, setContent] = useState("");
   const [groupNo, setGroupNo] = useState(1);
@@ -144,7 +146,7 @@ export default function AktivitasKelas({ params }: { params: Promise<{ id: strin
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-3xl">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Aktivitas Kelas — Live Collaboration</h1>
+        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Aktivitas {labels.group} — Live Collaboration</h1>
         <p className="mb-6 text-sm text-slate-500">
           Hasil kerja kelompok tayang langsung ke layar kelompok lain.
         </p>
@@ -182,7 +184,7 @@ export default function AktivitasKelas({ params }: { params: Promise<{ id: strin
 
         {!checkingActivity && !activityId && !isOwner && (
           <div className="mb-8 rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-            Belum ada aktivitas berlangsung untuk kelas ini.
+            Belum ada aktivitas berlangsung untuk {labels.group.toLowerCase()} ini.
           </div>
         )}
 
