@@ -5,6 +5,7 @@ import Link from "next/link";
 import CreateClassForm from "./CreateClassForm";
 import ClassCard from "./ClassCard";
 import LogoutButton from "@/components/LogoutButton";
+import OrgSwitcher from "@/components/OrgSwitcher";
 
 export default async function DashboardGuru() {
   const supabase = await createClient();
@@ -24,6 +25,13 @@ export default async function DashboardGuru() {
             <p className="text-sm text-slate-500">Kelola kelas, skenario pembelajaran, dan bank materi.</p>
           </div>
           <div className="flex items-center gap-2">
+            <OrgSwitcher />
+            <Link
+              href="/pengaturan/organisasi"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              Pengaturan Organisasi
+            </Link>
             <Link
               href="/materi"
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"

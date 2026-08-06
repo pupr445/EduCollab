@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import JoinClassForm from "./JoinClassForm";
 import LogoutButton from "@/components/LogoutButton";
+import OrgSwitcher from "@/components/OrgSwitcher";
 
 export default async function DashboardSiswa() {
   const supabase = await createClient();
@@ -19,7 +20,10 @@ export default async function DashboardSiswa() {
       <div className="mx-auto max-w-4xl">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold text-slate-900">Dasbor Siswa</h1>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <OrgSwitcher />
+            <LogoutButton />
+          </div>
         </div>
         <p className="mb-8 text-sm text-slate-500">Kelas dan kelompok yang kamu ikuti.</p>
 
