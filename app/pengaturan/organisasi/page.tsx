@@ -62,7 +62,7 @@ export default async function PengaturanOrganisasiPage() {
 
   const { data: sectorOptions } = await supabase
     .from("sector_dictionaries")
-    .select("sector_key, cluster_key, cluster_label, sector_label")
+    .select("sector_key, cluster_key, cluster_label, sector_label, rollout_stage")
     .order("cluster_key")
     .order("sector_label");
 

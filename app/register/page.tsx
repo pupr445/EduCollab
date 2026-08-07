@@ -176,7 +176,7 @@ export default function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mb-4 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          placeholder="nama@sekolah.id"
+          placeholder="nama@organisasi.id"
         />
 
         <label className="mb-1 block text-sm font-medium text-slate-700">Kata Sandi</label>

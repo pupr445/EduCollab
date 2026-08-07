@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { translateError } from "@/lib/errorMessages";
+import { listContentTypeOptions } from "@/lib/sectorLabels";
 
 type KelasOption = { id: string; name: string };
 
@@ -11,10 +12,12 @@ export default function UploadMaterialForm({
   contentLabel = "Materi",
   groupLabel = "Kelas",
   leaderLabel = "Guru",
+  clusterKey = null,
 }: {
   contentLabel?: string;
   groupLabel?: string;
   leaderLabel?: string;
+  clusterKey?: string | null;
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -22,7 +25,8 @@ export default function UploadMaterialForm({
   const [classes, setClasses] = useState<KelasOption[]>([]);
   const [classId, setClassId] = useState("");
   const [title, setTitle] = useState("");
-  const [kind, setKind] = useState("materi");
+  const [kindOptions, setKindOptions] = useState<string[]>(["Dokumen"]);
+  const [kind, setKind] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +41,15 @@ export default function UploadMaterialForm({
     }
     if (open) loadClasses();
   }, [open, supabase]);
+
+  useEffect(() => {
+    if (!open) return;
+    listContentTypeOptions(supabase, clusterKey).then((opts) => {
+      setKindOptions(opts);
+      setKind((current) => current || opts[0] || "Dokumen");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, clusterKey]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,9 +127,9 @@ export default function UploadMaterialForm({
 
           <label className="mb-1 block text-sm font-medium text-slate-700">Jenis</label>
           <select value={kind} onChange={(e) => setKind(e.target.value)} className="mb-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-            <option value="rpp">RPP</option>
-            <option value="materi">Materi Presentasi</option>
-            <option value="portofolio">Portofolio Siswa</option>
+            {kindOptions.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
           </select>
 
           <label className="mb-1 block text-sm font-medium text-slate-700">Berkas</label>

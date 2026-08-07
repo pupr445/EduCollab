@@ -12,6 +12,7 @@ export type SectorLabels = {
   member: string;
   group: string;
   content: string;
+  clusterKey: string | null;
 };
 
 export const DEFAULT_LABELS: SectorLabels = {
@@ -19,6 +20,7 @@ export const DEFAULT_LABELS: SectorLabels = {
   member: "Anggota",
   group: "Grup",
   content: "Dokumen",
+  clusterKey: null,
 };
 
 type OrgLabelRow = {
@@ -29,6 +31,7 @@ type OrgLabelRow = {
   custom_group_label: string | null;
   custom_content_label: string | null;
   sector_dictionaries: {
+    cluster_key: string;
     leader_ui_label: string;
     member_ui_label: string;
     group_ui_label: string;
@@ -47,7 +50,7 @@ export async function getOrgLabels(
     .select(
       `sector_key, sector_status,
        custom_leader_label, custom_member_label, custom_group_label, custom_content_label,
-       sector_dictionaries ( leader_ui_label, member_ui_label, group_ui_label, content_ui_label )`
+       sector_dictionaries ( cluster_key, leader_ui_label, member_ui_label, group_ui_label, content_ui_label )`
     )
     .eq("id", orgId)
     .single<OrgLabelRow>();
@@ -61,6 +64,7 @@ export async function getOrgLabels(
     member: org.custom_member_label || dict?.member_ui_label || DEFAULT_LABELS.member,
     group: org.custom_group_label || dict?.group_ui_label || DEFAULT_LABELS.group,
     content: org.custom_content_label || dict?.content_ui_label || DEFAULT_LABELS.content,
+    clusterKey: dict?.cluster_key ?? null,
   };
 }
 
@@ -71,6 +75,7 @@ export type SectorDictionaryEntry = {
   cluster_key: string;
   cluster_label: string;
   sector_label: string;
+  rollout_stage: "penuh" | "beta";
 };
 
 export async function listSectorOptions(
@@ -78,7 +83,7 @@ export async function listSectorOptions(
 ): Promise<SectorDictionaryEntry[]> {
   const { data, error } = await supabase
     .from("sector_dictionaries")
-    .select("sector_key, cluster_key, cluster_label, sector_label")
+    .select("sector_key, cluster_key, cluster_label, sector_label, rollout_stage")
     .order("cluster_key")
     .order("sector_label");
 
@@ -99,4 +104,49 @@ export function groupByCluster(entries: SectorDictionaryEntry[]) {
     clusterLabel: v.clusterLabel,
     sectors: v.sectors,
   }));
+}
+
+// Kirim umpan balik istilah untuk sektor beta (Konsep Fitur Dropdown Registrasi v4,
+// bagian 9 — rencana validasi istilah dengan pengguna nyata).
+export async function submitSectorFeedback(
+  supabase: SupabaseClient,
+  params: {
+    orgId: string | null;
+    sectorKey: string;
+    field: "leader" | "member" | "group" | "content" | "umum";
+    comment: string;
+    userId: string;
+  }
+): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase.from("sector_label_feedback").insert({
+    org_id: params.orgId,
+    sector_key: params.sectorKey,
+    field: params.field,
+    comment: params.comment,
+    created_by: params.userId,
+  });
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// Pilihan "Jenis" konten mengikuti Kelompok Sektor organisasi aktif — bukan lagi
+// terkunci ke 3 pilihan pendidikan. clusterKey null (organisasi belum pilih sektor,
+// atau memilih "Lainnya") jatuh ke pilihan universal.
+export async function listContentTypeOptions(
+  supabase: SupabaseClient,
+  clusterKey: string | null
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("content_type_options")
+    .select("cluster_key, label, sort_order")
+    .order("sort_order");
+
+  if (error || !data) return ["Dokumen"];
+
+  const forCluster = data.filter((r) => r.cluster_key === clusterKey);
+  const universal = data.filter((r) => r.cluster_key === null);
+  const rows = forCluster.length > 0 ? forCluster : universal;
+
+  return rows.map((r) => r.label as string);
 }

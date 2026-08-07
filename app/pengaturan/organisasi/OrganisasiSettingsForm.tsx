@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { translateError } from "@/lib/errorMessages";
-import { groupByCluster, type SectorDictionaryEntry } from "@/lib/sectorLabels";
+import { groupByCluster, submitSectorFeedback, type SectorDictionaryEntry } from "@/lib/sectorLabels";
 
 type Org = {
   id: string;
@@ -50,6 +50,41 @@ export default function OrganisasiSettingsForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  // Umpan balik istilah untuk sektor beta (Konsep Fitur Dropdown Registrasi v4, bagian 9)
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const selectedSectorEntry = sectorOptions.find((s) => s.sector_key === sectorKey);
+  const isBetaSector = selectedSectorEntry?.rollout_stage === "beta";
+
+  async function handleSendFeedback() {
+    if (!feedbackText.trim()) return;
+    setFeedbackSending(true);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setFeedbackSending(false);
+      return;
+    }
+
+    const result = await submitSectorFeedback(supabase, {
+      orgId: org.id,
+      sectorKey,
+      field: "umum",
+      comment: feedbackText.trim(),
+      userId: user.id,
+    });
+
+    setFeedbackSending(false);
+    if (result.ok) {
+      setFeedbackSent(true);
+      setFeedbackText("");
+    }
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -127,9 +162,43 @@ export default function OrganisasiSettingsForm({
                 ?.sectors.map((s) => (
                   <option key={s.sector_key} value={s.sector_key}>
                     {s.sector_label}
+                    {s.rollout_stage === "beta" ? " (Beta)" : ""}
                   </option>
                 ))}
             </select>
+
+            {isBetaSector && (
+              <div className="mb-3 rounded-lg bg-amber-50 p-3">
+                <p className="mb-2 text-xs text-amber-700">
+                  Sektor ini masih tahap <strong>Beta</strong> — istilah bawaannya belum
+                  divalidasi langsung oleh pengguna dari sektor ini. Ada istilah yang terasa
+                  kurang pas untuk organisasi Anda?
+                </p>
+                {feedbackSent ? (
+                  <p className="text-xs font-medium text-green-700">
+                    Terima kasih, masukan Anda sudah kami terima.
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      type="text"
+                      value={feedbackText}
+                      onChange={(e) => setFeedbackText(e.target.value)}
+                      placeholder="mis. 'Fasilitator' kurang pas, lebih cocok 'Widyaiswara' saja"
+                      className="flex-1 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSendFeedback}
+                      disabled={feedbackSending || !feedbackText.trim()}
+                      className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                    >
+                      {feedbackSending ? "Mengirim..." : "Kirim Masukan"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
 

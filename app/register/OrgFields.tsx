@@ -126,7 +126,7 @@ export default function OrgFields({
                 required
                 value={value.sectorKey}
                 onChange={(e) => onChange({ ...value, sectorKey: e.target.value })}
-                className="mb-3 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="mb-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 <option value="">Pilih sektor spesifik</option>
                 {clusters
@@ -134,9 +134,17 @@ export default function OrgFields({
                   ?.sectors.map((s) => (
                     <option key={s.sector_key} value={s.sector_key}>
                       {s.sector_label}
+                      {s.rollout_stage === "beta" ? " (Beta)" : ""}
                     </option>
                   ))}
               </select>
+              {options.find((s) => s.sector_key === value.sectorKey)?.rollout_stage === "beta" && (
+                <p className="mb-3 text-xs text-amber-600">
+                  Sektor ini masih tahap Beta — istilahnya terus kami sempurnakan. Anda bisa
+                  memberi masukan kapan saja lewat halaman Pengaturan Organisasi setelah
+                  mendaftar.
+                </p>
+              )}
             </>
           )}
 

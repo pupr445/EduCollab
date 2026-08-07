@@ -37,7 +37,12 @@ export default async function BankMateri() {
         </div>
 
         <div className="mb-8">
-          <UploadMaterialForm contentLabel={labels.content} groupLabel={labels.group} leaderLabel={labels.leader} />
+          <UploadMaterialForm
+            contentLabel={labels.content}
+            groupLabel={labels.group}
+            leaderLabel={labels.leader}
+            clusterKey={labels.clusterKey}
+          />
         </div>
 
         <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm">
