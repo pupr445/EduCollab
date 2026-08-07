@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import CreateClassForm from "./CreateClassForm";
@@ -18,10 +16,15 @@ export default async function DashboardGuru() {
   const membership = user ? await getActiveMembership(supabase, user.id) : null;
   const labels = await getOrgLabels(supabase, membership?.org_id);
 
-  const { data: classes } = await supabase
+  const { data: classes, error: classesError } = await supabase
     .from("classes")
     .select("id, name, topic, join_code")
     .eq("owner_id", user?.id ?? "");
+
+  if (classesError) {
+    console.error("Gagal memuat daftar kelas:", classesError);
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
       <div className="mx-auto max-w-4xl">
@@ -53,6 +56,14 @@ export default async function DashboardGuru() {
         <div className="mb-8">
           <CreateClassForm groupLabel={labels.group} />
         </div>
+
+        {classesError && (
+          <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+            Gagal memuat daftar kelas: {classesError.message}
+            <br />
+            Kemungkinan besar ini masalah kebijakan RLS di Supabase (tabel <code>classes</code>) — cek urutan file SQL di folder <code>supabase/</code> sudah dijalankan semua.
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {(classes ?? []).map((c) => (
